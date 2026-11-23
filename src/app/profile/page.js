@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { apiRequest } from "@/lib/api-client";
@@ -72,7 +73,7 @@ export default function ProfilePage() {
         <p className="eyebrow">Profile</p>
         <h1 className="page-title">Your profile</h1>
         {message && <p className="alert" role="status">{message}</p>}
-        {image && <img className="profile-image" src={image} alt="Profile" />}
+        {image && <Image className="profile-image" src={image} alt="Profile" width={96} height={96} unoptimized />}
         <form className="form" onSubmit={saveProfile}>
           <label>Name<input className="input" value={name} onChange={(event) => setName(event.target.value)} required maxLength={100} /></label>
           <label>Email<input className="input" value={user.email} disabled /></label>
