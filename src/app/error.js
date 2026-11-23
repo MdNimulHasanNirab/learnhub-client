@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({ error, reset }) { return <main className="content"><div className="auth-card"><p className="eyebrow">SOMETHING WENT WRONG</p><h1 className="page-title">Let’s try that again.</h1><p className="muted">{error?.message || "The page could not load right now."}</p><button className="btn button button-primary" onClick={reset}>Try again</button></div></main>; }

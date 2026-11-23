@@ -1,13 +1,2 @@
-export default async function PaymentCancelledPage({ searchParams }) {
-  const { courseId } = await searchParams;
-  return (
-    <main className="content">
-      <div className="auth-card">
-        <p className="eyebrow">Checkout cancelled</p>
-        <h1 className="page-title">No payment was made</h1>
-        <p className="muted">You can return to the course whenever you are ready.</p>
-        <a className="button button-primary" href={courseId ? `/courses/${encodeURIComponent(courseId)}` : "/courses"}>Return to courses</a>
-      </div>
-    </main>
-  );
-}
+import Link from "next/link";
+export default function PaymentCancelledPage() { return <main className="content"><div className="auth-card"><p className="eyebrow">CHECKOUT CANCELLED</p><h1 className="page-title">No payment was made.</h1><p className="muted">Your booking is not confirmed. You can select equipment and try again whenever you’re ready.</p><Link className="btn button button-primary" href="/all-equipment">Return to equipment</Link></div></main>; }

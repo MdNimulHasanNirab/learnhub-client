@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "rigrent-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "better-auth": "^1.7.26",
+    "daisyui": "^5.8.2",
+    "framer-motion": "^14.14.0",
     "mongodb": "^7.9.0",
     "next": "16.4.6",
     "react": "19.3.0",

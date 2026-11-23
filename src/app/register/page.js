@@ -1,42 +1,10 @@
 "use client";
-
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-
 export default function RegisterPage() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function submit(event) {
-    event.preventDefault();
-    setError("");
-    setLoading(true);
-    const result = await authClient.signUp.email({ name, email, password });
-    setLoading(false);
-    if (result.error) setError(result.error.message || "Unable to create account");
-    else router.push("/dashboard");
-  }
-
-  return (
-    <main className="content">
-      <div className="auth-card">
-        <p className="eyebrow">Create account</p>
-        <h1 className="page-title">Join LearnHub</h1>
-        {error && <p className="alert">{error}</p>}
-        <form className="form" onSubmit={submit}>
-          <label>Name<input className="input" value={name} onChange={(event) => setName(event.target.value)} required /></label>
-          <label>Email<input className="input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-          <label>Password<input className="input" type="password" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-          <button className="button button-primary" type="submit" disabled={loading}>
-            {loading ? "Creating account…" : "Create account"}
-          </button>
-        </form>
-      </div>
-    </main>
-  );
+  const router = useRouter(); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
+  async function submit(event) { event.preventDefault(); const form = new FormData(event.currentTarget); const password = String(form.get("password")); if (password.length < 6 || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) { setError("Use at least 6 characters, including one uppercase and one lowercase letter."); return; } setBusy(true); setError(""); try { const result = await authClient.signUp.email({ name: form.get("name"), email: form.get("email"), password, image: form.get("image") || undefined }); if (result.error) throw new Error(result.error.message); window.alert("Your customer account is ready. Welcome to RigRent!"); router.push("/dashboard"); } catch (e) { setError(e.message); } finally { setBusy(false); } }
+  return <main className="content"><div className="auth-card"><p className="eyebrow">JOIN THE COMMUNITY</p><h1 className="page-title">Create your account</h1><p className="muted">Your customer account is ready for renting. Owners can apply from their dashboard.</p>{error && <p className="alert">{error}</p>}<form className="form" onSubmit={submit}><label>Name<input className="input" name="name" autoComplete="name" required/></label><label>Email<input className="input" type="email" name="email" autoComplete="email" required/></label><label>Profile photo URL (optional)<input className="input" type="url" name="image" placeholder="https://…"/></label><label>Password<input className="input" type="password" name="password" autoComplete="new-password" minLength={6} required/><small className="muted">At least 6 characters, with uppercase and lowercase letters.</small></label><button className="btn button button-primary" disabled={busy}>{busy ? "Creating account…" : "Create account"}</button></form><p className="muted">Already registered? <Link href="/login"><strong>Log in</strong></Link></p></div></main>;
 }

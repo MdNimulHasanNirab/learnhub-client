@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiRequest } from "@/lib/api-client";
 
 export default function PaymentSuccessClient({ sessionId }) {
@@ -8,13 +9,20 @@ export default function PaymentSuccessClient({ sessionId }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!sessionId) {
-      setError("Missing Stripe checkout session.");
-      return;
+    if (!sessionId) return;
+    let active = true;
+    let timer;
+    let attempts = 0;
+    async function refreshStatus() {
+      try {
+        const result = await apiRequest(`/api/checkout/${encodeURIComponent(sessionId)}`);
+        if (!active) return;
+        setPayment(result.data);
+        if (result.data.paymentStatus !== "paid" && attempts++ < 20) timer = setTimeout(refreshStatus, 2500);
+      } catch (requestError) { if (active) setError(requestError.message); }
     }
-    apiRequest(`/api/checkout/${encodeURIComponent(sessionId)}`)
-      .then((result) => setPayment(result.data))
-      .catch((requestError) => setError(requestError.message));
+    void refreshStatus();
+    return () => { active = false; clearTimeout(timer); };
   }, [sessionId]);
 
   return (
@@ -22,13 +30,13 @@ export default function PaymentSuccessClient({ sessionId }) {
       <div className="auth-card">
         <p className="eyebrow">Payment status</p>
         <h1 className="page-title">{payment?.paymentStatus === "paid" ? "Payment received" : "Confirming your payment"}</h1>
-        {error ? <p className="alert">{error}</p> : payment ? (
+        {error || !sessionId ? <p className="alert">{error || "Missing Stripe checkout session."}</p> : payment ? (
           <>
-            <p className="muted">{payment.courseTitle}</p>
-            <p className="muted">{payment.enrolled ? "Your enrollment is active." : "Stripe is processing the verified webhook. Your access will appear as soon as it completes."}</p>
+            <p className="muted">Booking status: {payment.bookingStatus}</p>
+            <p className="muted">{payment.paymentStatus === "paid" ? "Your rental is confirmed." : "Stripe is processing the verified payment webhook. Your booking will confirm when that completes."}</p>
           </>
         ) : <p className="muted">Checking your payment with Stripe…</p>}
-        <a className="button button-primary" href="/dashboard">Go to dashboard</a>
+        <Link className="btn button button-primary" href="/dashboard">Go to dashboard</Link>
       </div>
     </main>
   );

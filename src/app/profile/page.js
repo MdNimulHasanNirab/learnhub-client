@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { apiRequest } from "@/lib/api-client";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -16,17 +20,19 @@ export default function ProfilePage() {
       setUser(result.data);
       setName(result.data.name || "");
       setImage(result.data.image || "");
-    }).catch(() => { window.location.href = "/login"; });
-  }, []);
+      setPhone(result.data.phone || "");
+      setAddress(result.data.address || "");
+    }).catch(() => { router.replace("/login"); });
+  }, [router]);
 
   async function saveProfile(event) {
     event.preventDefault();
     setSaving(true);
     setMessage("");
     try {
-      const result = await apiRequest("/api/me", { method: "PATCH", body: JSON.stringify({ name, image }) });
+      const result = await apiRequest("/api/me", { method: "PATCH", body: JSON.stringify({ name, image, phone, address }) });
       const authResult = await authClient.updateUser({ name, image });
-      if (authResult.error) throw new Error(authResult.error.message || "Profile saved to LMS but authentication profile update failed");
+      if (authResult.error) throw new Error(authResult.error.message || "Profile saved but authentication profile update failed");
       setUser(result.data);
       setMessage("Profile updated.");
     } catch (error) {
@@ -39,7 +45,7 @@ export default function ProfilePage() {
   async function uploadProfileImage(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
       setMessage("Choose a JPG, PNG, WebP or GIF image under 5 MB.");
       return;
     }
@@ -56,7 +62,7 @@ export default function ProfilePage() {
 
   async function logout() {
     await authClient.signOut();
-    window.location.href = "/";
+    router.push("/");
   }
 
   if (!user) return <main className="content"><p>Loading profile…</p></main>;
@@ -70,11 +76,13 @@ export default function ProfilePage() {
         <form className="form" onSubmit={saveProfile}>
           <label>Name<input className="input" value={name} onChange={(event) => setName(event.target.value)} required maxLength={100} /></label>
           <label>Email<input className="input" value={user.email} disabled /></label>
+          <label>Phone number<input className="input" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} /></label>
+          <label>Address<textarea className="textarea" value={address} onChange={(event) => setAddress(event.target.value)} maxLength={300} /></label>
           <label>Profile picture<input className="input" type="file" accept="image/*" onChange={uploadProfileImage} /></label>
           <p><strong>Role:</strong> {user.role}</p>
-          <button className="button button-primary" type="submit" disabled={saving}>{saving ? "Saving…" : "Save profile"}</button>
+          <button className="btn button button-primary" type="submit" disabled={saving}>{saving ? "Saving…" : "Save profile"}</button>
         </form>
-        <button className="button button-secondary" type="button" onClick={logout}>Log out</button>
+        <button className="btn button button-secondary" type="button" onClick={logout}>Log out</button>
       </div>
     </main>
   );

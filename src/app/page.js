@@ -1,29 +1,26 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { API_URL } from "@/lib/api";
 
+const categories = ["Construction Equipment", "Photography Equipment", "Vehicles & Transportation", "Agriculture Equipment", "Electronics", "Event Equipment"];
+const reviews = [
+  ["Ayesha Rahman", 5, "Booked a camera kit for a weekend shoot. Pickup was easy and the gear was in excellent condition."],
+  ["Rafi Chowdhury", 5, "Found a mini excavator nearby and had the project moving the same week."],
+  ["Nusrat Jahan", 5, "Clear prices and responsive owners. Renting was much simpler than buying."],
+  ["Imran Kabir", 4, "A reliable place to find the tools I need without storing them year round."],
+];
 export default function Home() {
-  return (
-    <main>
-      <section className="hero">
-        <div>
-          <p className="eyebrow">Learn. Practice. Grow.</p>
-          <h1>Build skills that move your future forward.</h1>
-          <p className="hero-copy">Explore practical courses, learn with mentors, and keep every step of your progress in one place.</p>
-          <div className="hero-actions">
-            <Link className="button button-primary" href="/courses">Explore courses</Link>
-            <Link className="button button-secondary" href="/register">Start learning</Link>
-          </div>
-        </div>
-        <div className="hero-card" aria-label="Learning platform summary">
-          <span>Learning platform</span>
-          <strong>Expert-led courses</strong>
-          <p>Structured lessons and measurable progress for every learner.</p>
-        </div>
-      </section>
-      <section className="feature-grid">
-        <article><span>01</span><h2>Practical courses</h2><p>Learn focused skills through organized, mentor-created lessons.</p></article>
-        <article><span>02</span><h2>Clear progress</h2><p>Track completed lessons and see exactly what remains.</p></article>
-        <article><span>03</span><h2>Secure learning</h2><p>Role-based access keeps student, mentor and admin tools separated.</p></article>
-      </section>
-    </main>
-  );
+  const [items, setItems] = useState([]);
+  useEffect(() => { fetch(`${API_URL}/api/equipment/featured`).then((r) => r.json()).then((r) => setItems(r.data || [])).catch(() => {}); }, []);
+  return <main>
+    <section className="hero home-hero"><div className="hero-copy-block"><motion.p className="eyebrow" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>THE RIGHT TOOL FOR THE JOB</motion.p><motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .1 }}>Make room for <em>more</em> projects.</motion.h1><motion.p className="hero-copy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .2 }}>Rent the equipment you need from trusted local owners. Get the job done without the cost of owning every tool.</motion.p><div className="hero-actions"><Link className="btn button button-primary" href="/all-equipment">Explore equipment <span>↗</span></Link><Link className="text-link" href="/register">Have gear to share? List it →</Link></div><div className="hero-proof"><span>✓ Verified listings</span><span>✓ Secure checkout</span><span>✓ Flexible terms</span></div></div><div className="hero-visual"><div className="hero-photo"><div className="photo-tag"><span className="live-dot"/> Ready when you are</div></div><div className="hero-note"><b>Borrow better.</b><span>Own less. Do more.</span></div><div className="hero-stamp">RENT<br/>LOCAL</div></div></section>
+    <section className="trust-strip"><span>BUILT FOR PEOPLE WHO BUILD</span><b>Contractors</b><b>Creators</b><b>Growers</b><b>Event teams</b></section>
+    <section className="section-wrap"><div className="section-heading"><div><p className="eyebrow">READY TO GO</p><h2>Featured equipment</h2><p>Popular picks from trusted owners near you.</p></div><Link className="text-link" href="/all-equipment">See all equipment ↗</Link></div><motion.div className="equipment-grid" initial="hidden" whileInView="show" viewport={{ once: true, amount: .12 }} variants={{ hidden: {}, show: { transition: { staggerChildren: .08 } } }}>{items.map((item) => <motion.article className="equipment-card" key={item._id} variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}><Link href={`/equipment/${item._id}`}><img src={item.image} alt={item.name}/></Link><div className="equipment-card-body"><div className="card-meta"><span>{item.category}</span><span className="availability">{item.availableQuantity > 0 ? "Available" : "Booked"}</span></div><h3>{item.name}</h3><div className="price-row"><b>৳{item.rentalPrice}<small> / {item.rentalType}</small></b><Link className="text-link" href={`/equipment/${item._id}`}>View details ↗</Link></div></div></motion.article>)}</motion.div>{items.length === 0 && <div className="empty-state">New listings are on the way. <Link href="/all-equipment">Browse all equipment</Link></div>}</section>
+    <section className="category-section"><div className="section-wrap"><div className="section-heading"><div><p className="eyebrow">FIND YOUR CATEGORY</p><h2>Every project has its gear.</h2></div></div><motion.div className="category-grid" initial="hidden" whileInView="show" viewport={{ once: true }} variants={{ hidden: {}, show: { transition: { staggerChildren: .07 } } }}>{categories.map((name, i) => <motion.div key={name} variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}><Link className="category-tile" href={`/all-equipment?category=${encodeURIComponent(name)}`}><span>0{i + 1}</span><b>{name}</b><span className="tile-arrow">↗</span></Link></motion.div>)}</motion.div></div></section>
+    <section className="section-wrap why-section"><div className="why-art"><div className="why-icon">✳</div><div><span>MAKE IT COUNT</span><b>Access &gt; ownership</b></div></div><div className="why-content"><p className="eyebrow">WHY RIGRENT</p><h2>Good equipment shouldn&apos;t be hard to get.</h2><div className="benefit-list"><article><b>01 · Spend smarter</b><p>Pay for the days you need, not the months it sits unused.</p></article><article><b>02 · Rent with confidence</b><p>Meet verified local owners and see clear listing details.</p></article><article><b>03 · Work on your terms</b><p>Choose the rental period and coordinate delivery directly.</p></article></div></div></section>
+    <section className="review-section"><div className="section-wrap"><div className="section-heading"><div><p className="eyebrow">GOOD WORK GETS A GOOD WORD</p><h2>People get things done.</h2></div><div className="rating-summary"><b>4.9</b><span>★★★★★<small>Community rating</small></span></div></div><div className="review-grid">{reviews.map(([name, rating, comment]) => <article className="review-card" key={name}><span className="stars">{"★".repeat(rating)}</span><p>“{comment}”</p><b>{name}</b><small>Verified renter</small></article>)}</div></div></section>
+    <section className="cta-band"><div><p className="eyebrow">YOUR NEXT PROJECT STARTS HERE</p><h2>Get the gear. Get going.</h2></div><Link className="btn button button-light" href="/all-equipment">Browse equipment ↗</Link></section>
+  </main>;
 }
