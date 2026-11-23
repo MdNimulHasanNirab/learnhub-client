@@ -5,7 +5,7 @@ import { jwt } from "better-auth/plugins";
 import { MongoClient } from "mongodb";
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017");
-const database = mongoClient.db(process.env.MONGODB_DB_NAME || "learnhub");
+const database = mongoClient.db(process.env.MONGODB_DB_NAME || "equipment_rental");
 
 export const auth = betterAuth({
   database: mongodbAdapter(database),
