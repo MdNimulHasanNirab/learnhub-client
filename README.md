@@ -28,6 +28,15 @@ The local frontend runs at `http://localhost:3000`; the API defaults to `http://
 - `npm run start` — serve the production build.
 - `npm run lint` — ESLint checks.
 
-## Deployment
+## Deployment on Vercel
 
-Live frontend URL: **Not deployed**. Configure production auth origins and server API URL after selecting a hosting account. See [`../docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md).
+The Vercel project `rigrent-client` is linked to this independent repository. Set these Production (and Preview, if needed) environment variables in Vercel before deploying:
+
+- `NEXT_PUBLIC_APP_URL` — deployed client origin.
+- `NEXT_PUBLIC_API_URL` — deployed API origin.
+- `BETTER_AUTH_URL` — same client origin as `NEXT_PUBLIC_APP_URL`.
+- `BETTER_AUTH_SECRET` — long random secret.
+- `MONGODB_URI` and `MONGODB_DB_NAME` — production MongoDB Atlas connection.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` — optional until Google OAuth is enabled; configure its callback URL as `<client-origin>/api/auth/callback/google`.
+
+Configure these values in Vercel Project Settings → Environment Variables; never commit credentials. Live frontend URL: **Not deployed yet**. Deploy with `vercel --prod` from this repository after configuring the values.
