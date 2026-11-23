@@ -1,14 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 export default function SiteFrame({ children }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  useEffect(() => { authClient.getSession().then((result) => setUser(result?.data?.user || null)); }, []);
-  async function logout() { await authClient.signOut(); setUser(null); router.push("/"); }
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  async function logout() { await authClient.signOut(); router.push("/"); }
   return <div className="site-shell">
     <header className="navbar"><Link className="brand" href="/"><span className="brand-mark">R</span><span>RIG<span className="brand-accent">RENT</span></span></Link>
       <nav className="nav-links" aria-label="Main navigation"><Link href="/">Home</Link><Link href="/all-equipment">Equipment</Link>
