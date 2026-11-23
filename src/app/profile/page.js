@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const [address, setAddress] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     apiRequest("/api/me").then((result) => {
@@ -47,17 +48,22 @@ export default function ProfilePage() {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
-      setMessage("Choose a JPG, PNG, WebP or GIF image under 5 MB.");
+      setMessage("Choose a JPG, PNG or WebP image under 5 MB.");
+      event.target.value = "";
       return;
     }
     const form = new FormData();
     form.append("image", file);
+    setUploadingImage(true);
     try {
       const result = await apiRequest("/api/upload-image", { method: "POST", body: form });
       setImage(result.data.url);
       setMessage("Image uploaded. Save your profile to apply it.");
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setUploadingImage(false);
+      event.target.value = "";
     }
   }
 
@@ -79,7 +85,7 @@ export default function ProfilePage() {
           <label>Email<input className="input" value={user.email} disabled /></label>
           <label>Phone number<input className="input" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} /></label>
           <label>Address<textarea className="textarea" value={address} onChange={(event) => setAddress(event.target.value)} maxLength={300} /></label>
-          <label>Profile picture<input className="input" type="file" accept="image/*" onChange={uploadProfileImage} /></label>
+          <label>Profile picture<input className="input" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadProfileImage} disabled={uploadingImage} /><small>{uploadingImage ? "Uploading image…" : "JPG, PNG or WebP; up to 5 MB"}</small></label>
           <p><strong>Role:</strong> {user.role}</p>
           <button className="btn button button-primary" type="submit" disabled={saving}>{saving ? "Saving…" : "Save profile"}</button>
         </form>
