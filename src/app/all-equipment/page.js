@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { API_URL } from "@/lib/api";
 
 const categories = ["Construction Equipment", "Photography Equipment", "Vehicles & Transportation", "Agriculture Equipment", "Electronics", "Event Equipment"];
 export default function EquipmentPage() {
-  const params = useSearchParams(); const [filters, setFilters] = useState({ search: "", category: params.get("category") || "", rentalType: "", availability: "", minPrice: "", maxPrice: "", sort: "newest" });
+  const params = useSearchParams(); const router = useRouter(); const [filters, setFilters] = useState({ search: params.get("search") || "", category: params.get("category") || "", rentalType: params.get("rentalType") || "", availability: params.get("availability") || "", minPrice: params.get("minPrice") || "", maxPrice: params.get("maxPrice") || "", sort: params.get("sort") || "newest" });
   const [items, setItems] = useState([]); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
+  useEffect(() => { const query = new URLSearchParams(Object.entries(filters).filter(([, value]) => value)); const suffix = query.size ? `?${query}` : ""; router.replace(`/all-equipment${suffix}`, { scroll: false }); }, [filters, router]);
   useEffect(() => { const timer = setTimeout(async () => { setLoading(true); const query = new URLSearchParams(Object.entries(filters).filter(([, value]) => value)); try { const result = await fetch(`${API_URL}/api/equipment?${query}`).then((response) => response.json()); if (!result.success) throw new Error(result.message); setItems(result.data.items); setError(""); } catch (e) { setError(e.message); setItems([]); } finally { setLoading(false); } }, 250); return () => clearTimeout(timer); }, [filters]);
   function change(key, value) { setFilters((state) => ({ ...state, [key]: value })); }
   return <main className="content"><p className="eyebrow">THE EQUIPMENT LIBRARY</p><h1 className="page-title">Find your next<br/>project essential.</h1><p className="muted">Browse approved equipment from local owners.</p>
